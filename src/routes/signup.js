@@ -6,11 +6,13 @@ const User = require("../models/users");
 const Otp = require("../models/otps");
 
 const { generateOtp } = require('../library/otp')
-const { sendMails } = require("../library/mail")
+const { sendMails } = require("../library/mail");
+const { encrypt } = require("../library/encryption");
 
 const SignupRoutes = express.Router();
 
 SignupRoutes.post("/signup/user", async (req, res) => {
+    req.body = decrypt(req)
     const Schema = Joi.object({
         project: Joi.string().optional().allow(null),
         username: Joi.string().optional().allow(null, ""),
@@ -26,9 +28,9 @@ SignupRoutes.post("/signup/user", async (req, res) => {
 
         const user = await User.findOne({ project: project_cond, email: body.email });
         if (user && user.status === 0)
-            return res.status(200).json({ success: true, error: false, verified: false, message: "User not verified!" });
+            return res.status(200).json(encrypt({ success: true, error: false, verified: false, message: "User not verified!" }));
         else if (user)
-            return res.status(200).json({ success: true, error: false, verified: true, message: "User already exists!" });
+            return res.status(200).json(encrypt({ success: true, error: false, verified: true, message: "User already exists!" }));
 
         const user_body = {
             project: body.project,
@@ -55,13 +57,14 @@ SignupRoutes.post("/signup/user", async (req, res) => {
         await sendMails(mailData);
         await User.create(user_body)
         await Otp.create(otp_body)
-        res.status(200).json({ response: "OTP sent.", verified: false, success: true, error: false });
+        return res.status(200).json(encrypt({ response: "OTP sent.", verified: false, success: true, error: false }));
     } catch (error) {
         console.log(error);
     }
 });
 
 SignupRoutes.post("/signup/verify/otp", async (req, res) => {
+    req.body = decrypt(req)
     const Schema = Joi.object({
         project: Joi.string().optional().allow(null),
         email: Joi.string().required(),
@@ -75,18 +78,18 @@ SignupRoutes.post("/signup/verify/otp", async (req, res) => {
         }
         const user = await User.findOne({ project: project_cond, email: body.email })
         if (!user)
-            return res.status(200).json({ success: true, error: false, verified: false, message: "No user exists" });
+            return res.status(200).json(encrypt({ success: true, error: false, verified: false, message: "No user exists" }));
         else if (user.status === 1)
-            return res.status(200).json({ success: true, error: false, verified: false, message: "User already verified" });
+            return res.status(200).json(encrypt({ success: true, error: false, verified: false, message: "User already verified" }));
 
         const userOtp = await Otp.findOne({ project: project_cond, email: body.email, status: 1 });
         if (!userOtp)
-            return res.status(200).json({ success: true, error: false, verified: false, message: "OTP expired, please try again." });
+            return res.status(200).json(encrypt({ success: true, error: false, verified: false, message: "OTP expired, please try again." }));
 
         if (userOtp.otp != body.otp)
-            return res.status(200).json({ success: true, error: false, verified: false, message: "Wrong Otp." });
+            return res.status(200).json(encrypt({ success: true, error: false, verified: false, message: "Wrong Otp." }));
         else if (userOtp.otp === body.otp && userOtp.expiry < moment().format("YYYY-MM-DD HH:mm:ss"))
-            return res.status(200).json({ success: true, error: false, verified: false, message: "Otp expired." });
+            return res.status(200).json(encrypt({ success: true, error: false, verified: false, message: "Otp expired." }));
         else {
             await User.updateOne({ project: project_cond, email: body.email }, { $set: { status: 1 } });
             await Otp.updateOne(
@@ -102,7 +105,7 @@ SignupRoutes.post("/signup/verify/otp", async (req, res) => {
                 content: "Your account is verified successfully.",
             };
             await sendMails(mailData);
-            return res.status(200).json({ success: true, error: false, verified: true, message: "Verified." });
+            return res.status(200).json(encrypt({ success: true, error: false, verified: true, message: "Verified." }));
         }
     } catch (error) {
         console.log(error);
