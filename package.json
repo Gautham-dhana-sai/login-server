@@ -1,0 +1,29 @@
+{
+  "name": "login-server",
+  "version": "1.0.0",
+  "description": "a common login server",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js"
+  },
+  "author": "Goutham",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.1",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "http": "^0.0.1-security",
+    "joi": "^18.0.2",
+    "jsonwebtoken": "^9.0.3",
+    "moment": "^2.30.1",
+    "mongodb": "^7.0.0",
+    "mongoose": "^9.1.1",
+    "nodemailer": "^7.0.12",
+    "nodemon": "^3.1.11",
+    "otp-generator": "^4.0.1"
+  }
+}
