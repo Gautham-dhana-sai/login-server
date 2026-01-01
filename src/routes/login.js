@@ -2,8 +2,8 @@ const express = require("express");
 const Joi = require("joi");
 const jwt = require("jsonwebtoken")
 
-const User = require("../models/users");
-const { encrypt } = require("../library/encryption");
+const User = require("../models/users.model");
+const { encrypt, decrypt } = require("../library/encryption");
 
 const loginRoutes = express.Router()
 
@@ -15,8 +15,8 @@ loginRoutes.post("/login/user", async (req, res) => {
         password: Joi.string().required(),
     });
     try {
-        const project_cond = body.project || null
         const { error, value: body } = Schema.validate(req.body);
+        const project_cond = body.project || null
         const user = await User.findOne({ project: project_cond, email: body.email });
         if (!user) {
             res.status(200).json(encrypt({ success: true, error: false, data: { login: false, signup: true, message: "User not found" } }));
