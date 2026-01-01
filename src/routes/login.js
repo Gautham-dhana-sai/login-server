@@ -17,6 +17,8 @@ loginRoutes.post("/login/user", async (req, res) => {
     try {
         const { error, value: body } = Schema.validate(req.body);
         const project_cond = body.project || null
+        body.email = body.email.toLowerCase()
+
         const user = await User.findOne({ project: project_cond, email: body.email });
         if (!user) {
             res.status(200).json(encrypt({ success: true, error: false, data: { login: false, signup: true, message: "User not found" } }));

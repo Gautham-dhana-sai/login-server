@@ -11,7 +11,7 @@ passwordRoutes.post("/change/password", async (req, res) => {
     req.body = decrypt(req);
     const Schema = Joi.object({
         project: Joi.string().optional().allow(null),
-        mail_id: Joi.string().required(),
+        email: Joi.string().required(),
         password: Joi.string().required(),
     });
     try {
@@ -22,8 +22,10 @@ passwordRoutes.post("/change/password", async (req, res) => {
             return res.json(encrypt(response));
         }
         const project_cond = body.project || null
+        body.email = body.email.toLowerCase()
+
         await User.updateOne(
-            { project: project_cond, mail_id: body.mail_id },
+            { project: project_cond, email: body.email },
             { $set: { password: body.password } }
         );
         const response = {
