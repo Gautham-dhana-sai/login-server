@@ -2,6 +2,7 @@ const express = require("express")();
 const bodyParser = require("body-parser");
 const http = require("http");
 const cors = require("cors");
+const { injectSpeedInsights } = require('@vercel/speed-insights');
 require("dotenv").config();
 
 const mongoConnection = require('./mongo')
@@ -12,6 +13,7 @@ const index = require("./index");
 const server = http.createServer(express);
 
 mongoConnection()
+injectSpeedInsights();
 express.use(bodyParser.json());
 express.use(cors());
 express.use(index);
