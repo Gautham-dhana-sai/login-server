@@ -1,7 +1,7 @@
 const express = require("express");
 const Joi = require("joi");
 
-const User = require("../models/users");
+const User = require("../models/users.model");
 
 const { encrypt, decrypt } = require("../library/encryption");
 
@@ -15,13 +15,13 @@ passwordRoutes.post("/change/password", async (req, res) => {
         password: Joi.string().required(),
     });
     try {
-        const project_cond = body.project || null
         const { error, value: body } = Schema.validate(req.body);
         if (error) {
             console.log(error);
             const response = error.details[0];
             return res.json(encrypt(response));
         }
+        const project_cond = body.project || null
         await User.updateOne(
             { project: project_cond, mail_id: body.mail_id },
             { $set: { password: body.password } }

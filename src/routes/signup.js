@@ -2,12 +2,12 @@ const express = require("express");
 const Joi = require("joi");
 const moment = require("moment");
 
-const User = require("../models/users");
-const Otp = require("../models/otps");
+const User = require("../models/users.model");
+const Otp = require("../models/otps.model");
 
 const { generateOtp } = require('../library/otp')
 const { sendMails } = require("../library/mail");
-const { encrypt } = require("../library/encryption");
+const { encrypt, decrypt } = require("../library/encryption");
 
 const SignupRoutes = express.Router();
 
@@ -20,11 +20,11 @@ SignupRoutes.post("/signup/user", async (req, res) => {
         password: Joi.string().required(),
     });
     try {
-        const project_cond = body.project || null
         const { error, value: body } = Schema.validate(req.body);
         if (error) {
             console.log(error);
         }
+        const project_cond = body.project || null
 
         const user = await User.findOne({ project: project_cond, email: body.email });
         if (user && user.status === 0)
@@ -42,9 +42,10 @@ SignupRoutes.post("/signup/user", async (req, res) => {
 
         const otp = generateOtp();
         const otp_body = {
+            project: body.project,
             email: body.email,
             otp,
-            expiry: moment().add(5, "minutes").format("YYYY-MM-DD HH:mm:ss"),
+            expiry: new Date(moment().add(5, "minutes").format("YYYY-MM-DD HH:mm:ss")),
             status: 1
         }
 
@@ -56,6 +57,7 @@ SignupRoutes.post("/signup/user", async (req, res) => {
 
         await sendMails(mailData);
         await User.create(user_body)
+        await Otp.deleteMany({project: project_cond, email: body.email})
         await Otp.create(otp_body)
         return res.status(200).json(encrypt({ response: "OTP sent.", verified: false, success: true, error: false }));
     } catch (error) {
@@ -71,11 +73,11 @@ SignupRoutes.post("/signup/verify/otp", async (req, res) => {
         otp: Joi.string().required(),
     });
     try {
-        const project_cond = body.project || null
         const { error, value: body } = Schema.validate(req.body);
         if (error) {
             console.log(error);
         }
+        const project_cond = body.project || null
         const user = await User.findOne({ project: project_cond, email: body.email })
         if (!user)
             return res.status(200).json(encrypt({ success: true, error: false, verified: false, message: "No user exists" }));
@@ -88,7 +90,7 @@ SignupRoutes.post("/signup/verify/otp", async (req, res) => {
 
         if (userOtp.otp != body.otp)
             return res.status(200).json(encrypt({ success: true, error: false, verified: false, message: "Wrong Otp." }));
-        else if (userOtp.otp === body.otp && userOtp.expiry < moment().format("YYYY-MM-DD HH:mm:ss"))
+        else if (userOtp.otp === body.otp && userOtp.expiry < new Date())
             return res.status(200).json(encrypt({ success: true, error: false, verified: false, message: "Otp expired." }));
         else {
             await User.updateOne({ project: project_cond, email: body.email }, { $set: { status: 1 } });

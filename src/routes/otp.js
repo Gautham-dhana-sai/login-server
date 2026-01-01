@@ -1,8 +1,8 @@
 const express = require("express");
 const Joi = require("joi");
 
-const User = require("../models/users");
-const Otp = require("../models/otps");
+const User = require("../models/users.model");
+const Otp = require("../models/otps.model");
 
 const { generateOtp } = require("../library/otp");
 const { sendMails } = require("../library/mail");
@@ -44,7 +44,7 @@ OtpRoutes.post("/resend/otp", async (req, res) => {
             project: project_cond,
             mail_id: body.mail_id,
             otp,
-            expiry: moment().add(10, "minutes").format("YYYY-MM-DD HH:mm:ss"),
+            expiry: new Date(moment().add(5, "minutes").format("YYYY-MM-DD HH:mm:ss")),
             status: 1
         };
         await Otp.deleteMany({ project: project_cond, mail_id: body.mail_id });

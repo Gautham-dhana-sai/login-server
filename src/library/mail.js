@@ -1,10 +1,12 @@
 const nodemailer = require("nodemailer");
+require("dotenv").config()
 
 const sendMails = (mailData) => {
     let sender = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
+        // host: "smtp.gmail.com",
+        // port: 587,
+        // secure: false,
+        service: "gmail",
         auth: {
             user: process.env.SENDER_MAIL,
             pass: process.env.SENDER_PASSWORD,

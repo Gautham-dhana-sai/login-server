@@ -5,7 +5,7 @@ const OtpSchema = new Schema({
     project: { type: String, nullable: true },
     email: { type: String },
     otp: { type: String },
-    expiry: { type: String, index: { expires: '5m' } },
+    expiry: { type: Date, index: { expires: '5m' }, default: Date.now() },
     status: { type: Number },
     created_at: { type: Date },
     updated_at: { type: Date },
