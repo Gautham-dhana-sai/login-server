@@ -7,7 +7,7 @@ require("dotenv").config();
 const mongoConnection = require('./mongo')
 const index = require("./index");
 
-const PORT = process.env.SERVER_PORT;
+// const PORT = process.env.SERVER_PORT;
 
 const server = http.createServer(express);
 
@@ -16,8 +16,8 @@ express.use(bodyParser.json());
 express.use(cors());
 express.use(index);
 
-server.listen(PORT, (req, res) => {
-  console.log("server started");
-});
+// server.listen(PORT, (req, res) => {
+//   console.log("server started");
+// });
 
 module.exports = server;
