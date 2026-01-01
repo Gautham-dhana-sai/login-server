@@ -25,6 +25,7 @@ SignupRoutes.post("/signup/user", async (req, res) => {
             console.log(error);
         }
         const project_cond = body.project || null
+        body.email = body.email.toLowerCase()
 
         const user = await User.findOne({ project: project_cond, email: body.email });
         if (user && user.status === 0)
@@ -36,7 +37,7 @@ SignupRoutes.post("/signup/user", async (req, res) => {
             project: body.project,
             email: body.email,
             password: body.password,
-            username: body.username,
+            username: body.username.toLowerCase(),
             status: 0,
         }
 
@@ -78,6 +79,8 @@ SignupRoutes.post("/signup/verify/otp", async (req, res) => {
             console.log(error);
         }
         const project_cond = body.project || null
+        body.email = body.email.toLowerCase()
+
         const user = await User.findOne({ project: project_cond, email: body.email })
         if (!user)
             return res.status(200).json(encrypt({ success: true, error: false, verified: false, message: "No user exists" }));

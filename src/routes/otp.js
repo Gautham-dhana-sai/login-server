@@ -14,11 +14,13 @@ OtpRoutes.post("/resend/otp", async (req, res) => {
     req.body = decrypt(req);
     const Schema = Joi.object({
         project: Joi.string().optional().allow(null),
-        mail_id: Joi.string().required(),
+        email: Joi.string().required(),
     });
     try {
         const { error, value: body } = Schema.validate(req.body);
         const project_cond = body.project || null
+        body.email = body.email.toLowerCase()
+
         if (error) {
             console.log(error);
             const response = error.details[0];
@@ -27,7 +29,7 @@ OtpRoutes.post("/resend/otp", async (req, res) => {
 
         const user = await User.findOne({
             project: project_cond,
-            mail_id: body.mail_id,
+            email: body.email,
         });
         if (!user) {
             const response = {
@@ -42,14 +44,14 @@ OtpRoutes.post("/resend/otp", async (req, res) => {
         const otp = generateOtp();
         const newOtp = {
             project: project_cond,
-            mail_id: body.mail_id,
+            email: body.email,
             otp,
             expiry: new Date(moment().add(5, "minutes").format("YYYY-MM-DD HH:mm:ss")),
             status: 1
         };
-        await Otp.deleteMany({ project: project_cond, mail_id: body.mail_id });
+        await Otp.deleteMany({ project: project_cond, email: body.email });
         const mailData = {
-            receiver: body.mail_id,
+            receiver: body.email,
             subject: "Sign up Verification",
             content: otp + " is your OTP for verification.",
         };
