@@ -8,6 +8,7 @@ const UserSchema = new Schema({
     email: { type: String },
     password: { type: String },
     status: { type: Number },
+    userId: {type: String, required: true}
 }, { timestamps: true });
 
 UserSchema.pre("save", async function () {
