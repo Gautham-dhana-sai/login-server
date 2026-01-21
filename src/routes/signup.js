@@ -1,6 +1,7 @@
 const express = require("express");
 const Joi = require("joi");
 const moment = require("moment");
+const {nanoid} = require("nanoid")
 
 const User = require("../models/users.model");
 const Otp = require("../models/otps.model");
@@ -33,12 +34,15 @@ SignupRoutes.post("/signup/user", async (req, res) => {
         else if (user)
             return res.status(200).json(encrypt({ success: true, error: false, verified: true, message: "User already exists!" }));
 
+        const userId = nanoid(10)
+
         const user_body = {
             project: body.project,
             email: body.email,
             password: body.password,
             username: body.username.toLowerCase(),
             status: 0,
+            userId
         }
 
         const otp = generateOtp();
