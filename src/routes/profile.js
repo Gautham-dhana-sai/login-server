@@ -1,7 +1,7 @@
 const express = require('express')
 const Joi = require('joi')
 
-const { jwtAuth } = require('../library/auth')
+const { jwtAuth } = require('../middlewares/auth')
 const { encrypt, decrypt } = require('../library/encryption')
 
 const User = require('../models/users.model')
