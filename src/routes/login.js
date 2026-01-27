@@ -32,7 +32,7 @@ loginRoutes.post("/login/user", async (req, res) => {
             res.status(200).json(encrypt({ success: true, error: false, data: { login: false, signup: false, message: "Invalid Password" } }));
             return res.end();
         }
-        const token = jwt.sign({ email: user.email }, process.env.JWT_KEY, {
+        const token = jwt.sign({ email: user.email, UID: user._id }, process.env.JWT_KEY, {
             expiresIn: "24h",
         });
         // await sendMails(req);
