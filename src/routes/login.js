@@ -36,7 +36,7 @@ loginRoutes.post("/login/user", async (req, res) => {
             expiresIn: "24h",
         });
         // await sendMails(req);
-        res.status(200).json(encrypt({ success: true, error: false, data: { userId: user.userId, token, login: true, signup: false, message: 'Logged in successfully.' } }));
+        res.status(200).json(encrypt({ success: true, error: false, data: { userId: user.userId, token, login: true, signup: false, user_id: user._id, message: 'Logged in successfully.' } }));
         return res.end();
     } catch (error) {
         console.log(error);
