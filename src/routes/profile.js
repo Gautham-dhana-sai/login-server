@@ -9,7 +9,7 @@ const { Types } = require('mongoose')
 
 const ProfileRoutes = express.Router()
 
-ProfileRoutes.post('/api/profile/data', jwtAuth, async(req, res) => {
+ProfileRoutes.post('/api/profile/data', async(req, res) => {
     try {
         req.body = decrypt(req)
 
