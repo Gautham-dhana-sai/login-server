@@ -5,6 +5,7 @@ const { jwtAuth } = require('../middlewares/auth')
 const { encrypt, decrypt } = require('../library/encryption')
 
 const User = require('../models/users.model')
+const { Types } = require('mongoose')
 
 const ProfileRoutes = express.Router()
 
@@ -13,8 +14,8 @@ ProfileRoutes.post('/api/profile/data', jwtAuth, async(req, res) => {
         req.body = decrypt(req)
 
         const schema = Joi.object({
-            email: Joi.string().required(),
-            userId: Joi.string().length(10).optional()
+            email: Joi.string().optional(),
+            userId: Joi.string().optional()
         })
 
         const {error, value: body} = schema.validate(req.body)
@@ -22,8 +23,10 @@ ProfileRoutes.post('/api/profile/data', jwtAuth, async(req, res) => {
             throw new Error(error)
         }
 
-        const conditions = {email: body.email}
-        if(body.userId) conditions.userId = body.userId
+        const conditions = {}
+        if(body.userId) conditions._id = new Types.ObjectId(body.userId)
+        else if (body.email) conditions.email = body.email
+        else throw new Error('Email or userId is required')
 
         const userData = await User.findOne(conditions)
         const response = {
